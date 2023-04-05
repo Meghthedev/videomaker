@@ -71,3 +71,37 @@ def generate_audio():
     # Create a gTTS object and generate audio
     tts = gTTS(text=text, lang=language, slow=False)
     tts.save("output.mp3")
+
+def cut_vid():
+    audio_path = 'output.mp3'
+    video_path = 'video.mp4'
+    output_path = 'cutvideo.mp4'
+
+    # Load audio and get its duration
+    audio = AudioSegment.from_file(audio_path)
+    audio_duration = audio.duration_seconds * 1000
+
+    # Load video and get its duration
+    cap = cv2.VideoCapture(video_path)
+    video_duration = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS) * 1000)
+
+    # If the video is longer than the audio, cut the video to match the audio duration
+    if video_duration > audio_duration:
+        cap.set(cv2.CAP_PROP_POS_MSEC, 0)
+        end_frame = int(audio_duration / 1000 * cap.get(cv2.CAP_PROP_FPS))
+    else:
+        end_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    # Write the new video to file
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(output_path, fourcc, cap.get(cv2.CAP_PROP_FPS), (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if ret == True:
+            out.write(frame)
+            if cap.get(cv2.CAP_PROP_POS_FRAMES) == end_frame:
+                break
+        else:
+            break
+    cap.release()
+    out.release()
