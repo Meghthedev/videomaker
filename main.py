@@ -60,3 +60,14 @@ def fetch_vid():
     video_response = requests.get(video_url)
     with open("video.mp4", "wb") as f:
         f.write(video_response.content)
+
+def generate_audio():
+    with open("quote.txt", "r") as file:
+        text = file.read()
+
+    # Set language to English and Indian accent
+    language = 'en-in'
+
+    # Create a gTTS object and generate audio
+    tts = gTTS(text=text, lang=language, slow=False)
+    tts.save("output.mp3")
