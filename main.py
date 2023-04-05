@@ -38,3 +38,25 @@ def generate_quote():
     # Save the quote to a file named quote.txt
     with open("quote.txt", "w") as f:
         f.write(quote)
+
+def fetch_vid():
+    # Enter Pixabay api key here
+    key = ""
+    query_params = {
+    "key": key,
+    "q": "nature",
+    "orientation": "vertical",
+    "video_type": "film"
+    }
+
+    # Send the request and get the response
+    response = requests.get("https://pixabay.com/api/videos/", params=query_params)
+    
+    # Get a random video from the response
+    video_data = response.json()["hits"][random.randint(0, len(response.json()["hits"])-1)]
+    video_url = video_data["videos"]["large"]["url"]
+
+    # Download the video and save it locally as "video.mp4"
+    video_response = requests.get(video_url)
+    with open("video.mp4", "wb") as f:
+        f.write(video_response.content)
